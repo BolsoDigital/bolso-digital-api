@@ -37,24 +37,6 @@ Além disso, os dados são armazenados em um **banco de dados relacional (SQLite
 
 ---
 
-## 📂 Estrutura do Projeto
-EcoApp/
-│── app/
-│ ├── main.py # Inicialização da API
-│ ├── database.py # Conexão com banco de dados
-│ ├── models/ # Definição das tabelas (Expenses, Category, User)
-│ ├── routers/
-│ │ ├── receipt_ai.py # Rota para upload e interpretação de comprovantes
-│ │ └── auth.py # (futuro) Autenticação de usuários
-│ └── utils/ # Funções auxiliares (ex: OCR, parse de dados)
-│
-│── .env # Chaves de API e configs locais
-│── requirements.txt # Dependências do projeto
-│── README.md # Documentação do projeto
-
-
----
-
 ## ⚙️ Instalação e Configuração
 
 1. Clone o repositório:
@@ -65,32 +47,34 @@ EcoApp/
 
 2. Crie um ambiente virtual e ative:
 
-  ```bash
-  python -m venv venv
-  source venv/bin/activate   # Linux/Mac
-  venv\Scripts\activate      # Windows
-  ````
+    ```bash
+    python -m venv venv
+    source venv/bin/activate   # Linux/Mac
+    venv\Scripts\activate      # Windows
+    ````
 
 
 3. Instale as dependências:
-  ```bash
-  pip install -r requirements.txt
-  ````
+    ```bash
+    pip install -r requirements.txt
+    ````
 
 4. Configure o arquivo .env:
 
-```bash
+  ```bash
   OCR_SPACE_API_KEY=suachaveaqui
   OPENAI_API_KEY=suachaveaqui
   DATABASE_URL=sqlite:///./eco.db
-````
+  ````
 
-Crie o banco de dados:
-
-from app.database import Base, engine
-Base.metadata.create_all(bind=engine)
+5. Crie o banco de dados:
+  ```bash
+  from app.database import Base, engine
+  Base.metadata.create_all(bind=engine)
+  ````
 
 
 Rode a API:
-
-uvicorn app.main:app --reload
+  ```bash
+  uvicorn app.main:app --reload
+  ````
