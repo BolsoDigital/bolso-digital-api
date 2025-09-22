@@ -7,7 +7,7 @@ from app.database import Base
 class Expenses(Base):
     __tablename__ = 'expenses'
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     value = Column(Numeric)
     id_category = Column(Integer, ForeignKey('category.id'))
     update_at = Column(DateTime)

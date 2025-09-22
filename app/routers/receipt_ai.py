@@ -3,10 +3,14 @@ import os
 
 import requests
 from dotenv import load_dotenv
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile, Depends
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableSequence
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.services.expenses import save_expense
 
 load_dotenv()
 
@@ -53,6 +57,7 @@ Retorne em formato JSON com as seguintes chaves:
 - destinatario (nome, CPF, banco)
 - pagador (nome, CPF, instituição)
 - categoria (escolha entre: alimentação, transporte, aluguel, serviços, saúde, educação, lazer, outros)
+- Tipo de transferencia
 """
     )
 
@@ -74,7 +79,11 @@ Retorne em formato JSON com as seguintes chaves:
 
 
 @router.post('/upload-payment', summary='Processa comprovante de pagamento')
-async def process_pix_receipt(file: UploadFile = File(...)):
+async def process_pix_receipt(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    id_user: int = 1  # 🔹 Exemplo fixo, depois pode vir do JWT ou request
+):
     if not file.content_type.startswith('image/'):
         raise HTTPException(
             status_code=400, detail='Arquivo precisa ser uma imagem'
@@ -88,7 +97,12 @@ async def process_pix_receipt(file: UploadFile = File(...)):
 
     try:
         structured_data = interpret_text_with_ai(text)
-        return {'dados_extraidos': structured_data}
+        expense = save_expense(db, structured_data, id_user)
+
+        return {
+            'dados_extraidos': structured_data,
+            'id_registro': expense.id
+        }
 
     except Exception as e:
         raise HTTPException(
