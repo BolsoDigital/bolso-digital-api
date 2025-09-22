@@ -20,7 +20,7 @@
 
 ## 📝 Descrição
 
-O **EcoApp** é uma aplicação que permite aos usuários gerenciar despesas de forma inteligente a partir de **comprovantes de pagamento** (PIX, boletos, transferências, etc.).
+O **Bolso Digital** é uma aplicação que permite aos usuários gerenciar despesas de forma inteligente a partir de **comprovantes de pagamento** (PIX, boletos, transferências, etc.).
 
 Através de **OCR + IA (LangChain + OpenAI)**, o sistema extrai automaticamente as informações do comprovante, interpreta os dados relevantes e classifica a despesa em categorias predefinidas.
 
