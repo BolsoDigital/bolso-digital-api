@@ -61,11 +61,11 @@ Além disso, os dados são armazenados em um **banco de dados relacional (SQLite
 
 4. Configure o arquivo .env:
 
-  ```bash
-  OCR_SPACE_API_KEY=suachaveaqui
-  OPENAI_API_KEY=suachaveaqui
-  DATABASE_URL=sqlite:///./eco.db
-  ````
+    ```bash
+    OCR_SPACE_API_KEY=suachaveaqui
+    OPENAI_API_KEY=suachaveaqui
+    DATABASE_URL=sqlite:///./eco.db
+    ````
 
 5. Crie o banco de dados:
     ```bash
