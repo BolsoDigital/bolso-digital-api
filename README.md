@@ -68,13 +68,13 @@ Além disso, os dados são armazenados em um **banco de dados relacional (SQLite
   ````
 
 5. Crie o banco de dados:
-  ```bash
-  from app.database import Base, engine
-  Base.metadata.create_all(bind=engine)
-  ````
+    ```bash
+    from app.database import Base, engine
+    Base.metadata.create_all(bind=engine)
+    ````
 
 
-Rode a API:
-  ```bash
-  uvicorn app.main:app --reload
-  ````
+6. Rode a API:
+    ```bash
+    uvicorn app.main:app --reload
+    ````
