@@ -1,4 +1,4 @@
-# 💸 EcoApp - Gestão de Despesas Inteligente
+# 💸 Bolso Digital - Gestão de Despesas Inteligente
 
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.116.1-0eb7ad?logo=fastapi)
