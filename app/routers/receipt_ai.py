@@ -57,7 +57,7 @@ Retorne em formato JSON com as seguintes chaves:
 - destinatario (nome, CPF, banco)
 - pagador (nome, CPF, instituição)
 - categoria (escolha entre: alimentação, transporte, aluguel, serviços, saúde, educação, lazer, outros)
-- Tipo de transferencia
+- Tipo de transferencia: (se for entre contas, para terceiros, DOC, TED, Pix)
 """
     )
 
