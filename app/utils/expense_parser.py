@@ -34,7 +34,7 @@ async def parse_expense_from_image(image_file):
         response = await client.post(url, data=data, files=files)
 
     try:
-        result = response.json()  # Agora é um dicionário
+        result = response.json()
         if result.get('IsErroredOnProcessing'):
             return None
         parsed_results = result.get('ParsedResults')
@@ -42,7 +42,11 @@ async def parse_expense_from_image(image_file):
             return None
 
         text = parsed_results[0].get('ParsedText', '')
-        return parse_expense_from_text(text)
+        
+        return {
+            "raw_text": text,
+            "parsed": parse_expense_from_text(text)
+        }
 
     except Exception as e:
         print(f'[Erro OCR] {e}')
