@@ -1,0 +1,1 @@
+from .receipt_ai_controller import ReceiptAIController
