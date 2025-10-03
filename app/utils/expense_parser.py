@@ -22,8 +22,11 @@ def parse_expense_from_text(text: str):
 
 async def parse_expense_from_image(image_file):
     API_KEY = os.getenv('OCR_SPACE_API_KEY')
+    if not API_KEY:
+        raise ValueError("OCR_SPACE_API_KEY não definido no ambiente")
+        
     url = 'https://api.ocr.space/parse/image'
-    files = {'file': (image_file.filename, await image_file.read())}
+    files = {'file': (image_file.filename, await image_file.read(), image_file.content_type)}
     data = {
         'apikey': API_KEY,
         'language': 'por',
@@ -37,6 +40,7 @@ async def parse_expense_from_image(image_file):
         result = response.json()
         if result.get('IsErroredOnProcessing'):
             return None
+            
         parsed_results = result.get('ParsedResults')
         if not parsed_results:
             return None

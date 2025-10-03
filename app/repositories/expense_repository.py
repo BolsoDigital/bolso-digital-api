@@ -37,11 +37,16 @@ def get_or_create_category(db: Session, name: str):
 
 def save_expense(db: Session, dados: dict, id_user: int):
     try:
-        update_at = datetime.strptime(
-            f"{dados['data']} {dados['hora']}", '%d/%m/%Y %H:%M:%S'
-        )
+        if dados.get("data") and dados.get("hora"):  
+            update_at = datetime.strptime(
+                f"{dados['data']} {dados['hora']}", "%d/%m/%Y %H:%M:%S"
+            )
+        elif dados.get("data"):  
+            update_at = datetime.strptime(dados['data'], "%d/%m/%Y")
+        else:
+            update_at = datetime.now()
     except Exception:
-        update_at = datetime.utcnow()
+        update_at = datetime.now()
 
     categoria = get_or_create_category(db, dados.get('categoria', 'outros'))
 
@@ -52,7 +57,7 @@ def save_expense(db: Session, dados: dict, id_user: int):
         update_at=update_at,
         description=f"Pagamento de {dados['pagador']['nome']} para {dados['destinatario']['nome']}",
         id_user=id_user,
-        payment_method='Pix',
+        payment_method=dados['Tipo de transferencia'],
         is_recurring=False,
     )
 

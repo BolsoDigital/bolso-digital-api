@@ -27,9 +27,17 @@ class ProcessReceiptUseCase:
     def interpret_text_with_ai(self, text):
         prompt = PromptTemplate.from_template(
             """
-            Extraia as informações do texto do comprovante Pix abaixo.
+            Analise o texto do documento financeiro abaixo.
+            Ele pode ser um comprovante de Pix, TED, DOC, Compra no débito, Compra no crédito, ou um boleto bancário.
+            Se algum dado não estiver presente no texto, deixe o campo vazio ("").
+            Não invente valores.
             Texto do comprovante:
             {text}
+
+            
+            - A data pode aparecer junto com a hora (exemplo: "02/10/2025 - 21:40:58").
+            - Nesse caso, separe a data em "02/10/2025" e a hora em "21:40:58".
+            - Se tiver código de barras então é um boleto.
             Retorne em formato JSON com as seguintes chaves:
             - valor (float)
             - data (formato dd/mm/yyyy)
@@ -37,12 +45,14 @@ class ProcessReceiptUseCase:
             - destinatario (nome, CPF, banco)
             - pagador (nome, CPF, instituição)
             - categoria (escolha entre: alimentação, transporte, aluguel, serviços, saúde, educação, lazer, outros)
-            - Tipo de transferencia: (se for entre contas, para terceiros, DOC, TED, Pix, Boleto)
+            - Tipo de transferencia: (Pix, Boleto, TED, DOC, Crédito, Débito ou outro)
             """
         )
         llm = ChatOpenAI(temperature=0, model='gpt-3.5-turbo')
         chain = prompt | llm
         result = chain.invoke({'text': text})
+        print("💬 Prompt enviado para o modelo:", {text})
+        print("🔎 Saída do modelo:", result.content)
         try:
             dados = json.loads(result.content)
             categoria = dados.get('categoria', '').strip().lower()
