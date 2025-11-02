@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status, Query
 from sqlalchemy.orm import Session
 
 from app.controllers.receipt_ai_controller import ReceiptAIController
@@ -19,7 +19,7 @@ async def analyze_expense(
     message: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    id_user: int = 1,
+    id_user: int = Form(...),
 ):
     if not message and not image:
         raise HTTPException(
@@ -51,7 +51,7 @@ async def analyze_expense(
 async def delete_payment(
     payment_id: int,
     db: Session = Depends(get_db),
-    id_user: int = 1,
+    id_user: int = Query(...),
 ):
     controller = ReceiptAIController(db)
     try:
