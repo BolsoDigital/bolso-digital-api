@@ -44,7 +44,7 @@ class ProcessReceiptUseCase:
             - hora (formato HH:MM:SS)
             - destinatario (nome, CPF, banco)
             - pagador (nome, CPF, instituição)
-            - categoria (escolha entre: alimentação, transporte, aluguel, serviços, saúde, educação, lazer, outros)
+            - categoria (escolha baseado no nome do destinatario,  entre: alimentação, transporte, aluguel, serviços, saúde, educação, lazer, outros)
             - Tipo de transferencia: (Pix, Boleto, TED, DOC, Crédito, Débito ou outro)
             """
         )
