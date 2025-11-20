@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Request
 import httpx
 import json
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
-
-VERIFY_TOKEN = ""
-WHATSAPP_TOKEN = ""
-PHONE_NUMBER_ID = "" 
-
 
 @router.get("/webhook/whatsapp")
 async def verify_webhook(request: Request):
@@ -15,7 +15,7 @@ async def verify_webhook(request: Request):
     token = request.query_params.get("hub.verify_token")
     challenge = request.query_params.get("hub.challenge")
 
-    if mode == "subscribe" and token == VERIFY_TOKEN:
+    if mode == "subscribe" and token == os.getenv('VERIFY_TOKEN'):
         return int(challenge)
 
     return {"error": "Token inválido"}
@@ -42,10 +42,12 @@ async def receive_message(request: Request):
     if message["type"] == "image":
         media_id = message["image"]["id"]
 
+        WEB_TOKEN = os.getenv('WHATSAPP_TOKEN')
+
         async with httpx.AsyncClient() as client:
             media_info = await client.get(
                 f"https://graph.facebook.com/v18.0/{media_id}?fields=url",
-                headers={"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+                headers={"Authorization": f"Bearer {WEB_TOKEN}"}
             )
 
             media_json = media_info.json()
@@ -58,7 +60,7 @@ async def receive_message(request: Request):
 
             image_bytes = await client.get(
                 url,
-                headers={"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+                headers={"Authorization": f"Bearer {WEB_TOKEN}"}
             )
 
         async with httpx.AsyncClient() as client:
@@ -68,12 +70,20 @@ async def receive_message(request: Request):
             data = {"id_user": "1"}
 
             process = await client.post(
-                "https://a4606a1a2424.ngrok-free.app/ai/upload-payment/",
+                "https://kisha-cotyledonoid-monistically.ngrok-free.dev/ai/upload-payment/",
                 files=files,
                 data=data
             )
 
-        result = process.json()
+            # Verifica se a resposta é JSON
+            if "application/json" in process.headers.get("content-type", ""):
+                result = process.json()
+            else:
+                print("\n\n===== ERRO NO PROCESSAMENTO DO COMPROVANTE =====")
+                print("Status:", process.status_code)
+                print("Response:", process.text)
+                print("===============================================\n\n")
+                result = {"error": "Resposta não JSON da API de análise"}
 
         await send_message(sender, f"Análise concluída:\n{result}")
 
@@ -81,7 +91,11 @@ async def receive_message(request: Request):
 
 
 async def send_message(phone_number, text):
-    url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
+
+    WEB_TOKEN = os.getenv('WHATSAPP_TOKEN')
+    PHONE_ID = os.getenv('PHONE_NUMBER_ID')
+
+    url = f"https://graph.facebook.com/v18.0/{PHONE_ID}/messages"
     
     payload = {
         "messaging_product": "whatsapp",
@@ -93,6 +107,6 @@ async def send_message(phone_number, text):
     async with httpx.AsyncClient() as client:
         await client.post(
             url,
-            headers={"Authorization": f"Bearer {WHATSAPP_TOKEN}"},
+            headers={"Authorization": f"Bearer {WEB_TOKEN}"},
             json=payload
         )
