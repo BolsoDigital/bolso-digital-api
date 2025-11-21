@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 import httpx
-import json
 import os
 
+from app.database import get_db
+from app.models.user import get_user_by_phone
 from dotenv import load_dotenv
 
 load_dotenv()
 
 router = APIRouter()
+
 
 @router.get("/webhook/whatsapp")
 async def verify_webhook(request: Request):
@@ -22,7 +24,7 @@ async def verify_webhook(request: Request):
 
 
 @router.post("/webhook/whatsapp")
-async def receive_message(request: Request):
+async def receive_message(request: Request, db=Depends(get_db)):
     data = await request.json()
 
     try:
@@ -30,18 +32,28 @@ async def receive_message(request: Request):
     except:
         return {"status": "ignored"}
 
-    sender = message["from"]
+    # Número do WhatsApp que enviou a mensagem
+    sender = message["from"]  # Ex: "551199887766"
 
-    # Se for texto
+    # Procura no banco Django (tabela custom_user)
+    user = get_user_by_phone(db, sender)
+
+    if not user:
+        await send_message(sender, "❗ Seu número não está cadastrado no sistema.")
+        return {"status": "user_not_found"}
+
+    user_id = user.id
+    print(f"🔥 Usuário encontrado: ID={user_id}, Phone={user.phone_number}")
+
+
     if message["type"] == "text":
         user_text = message["text"]["body"]
         await send_message(sender, f"Recebi sua mensagem:\n{user_text}")
         return {"status": "ok"}
 
-    # Se for imagem
+
     if message["type"] == "image":
         media_id = message["image"]["id"]
-
         WEB_TOKEN = os.getenv('WHATSAPP_TOKEN')
 
         async with httpx.AsyncClient() as client:
@@ -63,11 +75,13 @@ async def receive_message(request: Request):
                 headers={"Authorization": f"Bearer {WEB_TOKEN}"}
             )
 
+        # Agora enviamos o ID REAL do usuário para sua API
         async with httpx.AsyncClient() as client:
             files = {
                 "image": ("comprovante.jpg", image_bytes.content, "image/jpeg")
             }
-            data = {"id_user": "1"}
+
+            data = {"id_user": str(user_id)}
 
             process = await client.post(
                 "https://kisha-cotyledonoid-monistically.ngrok-free.dev/ai/upload-payment/",
@@ -75,7 +89,6 @@ async def receive_message(request: Request):
                 data=data
             )
 
-            # Verifica se a resposta é JSON
             if "application/json" in process.headers.get("content-type", ""):
                 result = process.json()
             else:
@@ -91,17 +104,16 @@ async def receive_message(request: Request):
 
 
 async def send_message(phone_number, text):
-
     WEB_TOKEN = os.getenv('WHATSAPP_TOKEN')
     PHONE_ID = os.getenv('PHONE_NUMBER_ID')
 
     url = f"https://graph.facebook.com/v18.0/{PHONE_ID}/messages"
-    
+
     payload = {
         "messaging_product": "whatsapp",
         "to": phone_number,
         "type": "text",
-        "text": { "body": text }
+        "text": {"body": text}
     }
 
     async with httpx.AsyncClient() as client:

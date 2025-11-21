@@ -37,31 +37,37 @@ def get_or_create_category(db: Session, name: str):
 
 def save_expense(db: Session, dados: dict, id_user: int):
     try:
-        if dados.get("data") and dados.get("hora"):  
-            update_at = datetime.strptime(
-                f"{dados['data']} {dados['hora']}", "%d/%m/%Y %H:%M:%S"
-            )
-        elif dados.get("data"):  
-            update_at = datetime.strptime(dados['data'], "%d/%m/%Y")
-        else:
+        try:
+            if dados.get("data") and dados.get("hora"):  
+                update_at = datetime.strptime(
+                    f"{dados['data']} {dados['hora']}", "%d/%m/%Y %H:%M:%S"
+                )
+            elif dados.get("data"):  
+                update_at = datetime.strptime(dados['data'], "%d/%m/%Y")
+            else:
+                update_at = datetime.now()
+        except Exception:
             update_at = datetime.now()
-    except Exception:
-        update_at = datetime.now()
 
-    categoria = get_or_create_category(db, dados.get('categoria', 'outros'))
+        categoria = get_or_create_category(db, dados.get('categoria', 'outros'))
 
 
-    expense = Expenses(
-        value=dados['valor'],
-        id_category=categoria.id,
-        update_at=update_at,
-        description=f"Pagamento de {dados['pagador']['nome']} para {dados['destinatario']['nome']}",
-        id_user=id_user,
-        payment_method=dados['Tipo de transferencia'],
-        is_recurring=False,
-    )
+        expense = Expenses(
+            value=dados['valor'],
+            id_category=categoria.id,
+            update_at=update_at,
+            description=f"Pagamento de {dados['pagador']['nome']} para {dados['destinatario']['nome']}",
+            id_user=id_user,
+            payment_method = dados.get("tipo_transferencia", ""),
+            is_recurring=False,
+        )
 
-    db.add(expense)
-    db.commit()
-    db.refresh(expense)
-    return expense
+        db.add(expense)
+        db.commit()
+        db.refresh(expense)
+        return expense
+    except Exception as e:
+        print(" ERRO AO SALVAR NO BANCO:")
+        print(type(e), e)
+        db.rollback()
+        raise

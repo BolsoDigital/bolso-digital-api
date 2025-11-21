@@ -15,7 +15,7 @@ class Income(Base):
     __tablename__ = 'income'
 
     id = Column(BigInteger, primary_key=True, index=True)
-    id_user = Column(BigInteger, ForeignKey('user.id'))
+    id_user = Column(BigInteger, ForeignKey('custom_user.id'))
     value = Column(Numeric)
     source = Column(String)
     received_at = Column(DateTime)

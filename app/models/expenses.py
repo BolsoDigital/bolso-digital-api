@@ -21,6 +21,6 @@ class Expenses(Base):
     id_category = Column(Integer, ForeignKey('category.id'))
     update_at = Column(DateTime)
     description = Column(Text)
-    id_user = Column(BigInteger, ForeignKey('user.id'))
+    id_user = Column(BigInteger, ForeignKey('custom_user.id'))
     payment_method = Column(String)
     is_recurring = Column(Boolean)
