@@ -1,20 +1,14 @@
-from passlib.hash import bcrypt
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, String
-
+from sqlalchemy import Column, Integer, String
 from app.database import Base
 
+class CustonUser(Base):
+    __tablename__ = "custom_user"
 
-class User(Base):
-    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True, index=True)
+    phone_number = Column(String, unique=True, index=True)
+    username = Column(String)
+    email = Column(String)
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    name = Column(String)
-    cpf = Column(String, unique=True, index=True)
-    phone_number = Column(String)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
-    create_at = Column(DateTime)
-    is_active = Column(Boolean, default=True)
 
-    def verify_password(self, password: str):
-        return bcrypt.verify(password, self.password)
+def get_user_by_phone(db, phone_number: str):
+    return db.query(CustonUser).filter(CustonUser.phone_number == phone_number).first()

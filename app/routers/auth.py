@@ -3,7 +3,7 @@ from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.user import User
+from app.models.user import CustonUser as User
 from app.schemas.auth import Token, UserLogin
 from app.schemas.user import UserCreate, UserOut
 from app.utils.auth import create_access_token

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.database import Base, engine
-from app.routers import auth, expenses_ai, receipt_ai
+from app.routers import auth, expenses_ai, receipt_ai, whatsapp
 
 # Cria as tabelas no banco (temporário)
 Base.metadata.create_all(bind=engine)
@@ -17,3 +17,4 @@ app = FastAPI()
 # app.include_router(auth.router)
 app.include_router(expenses_ai.router)
 app.include_router(receipt_ai.router)
+app.include_router(whatsapp.router)
